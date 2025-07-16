@@ -61,7 +61,7 @@ export PAGERDUTY_CLIENT_SECRET="CLIENT_SECRET_FOR_REGISTERED_APP"
 
 # Required for Rundeck integration
 export RUNDECK_API_TOKEN="YOUR_RUNDECK_API_TOKEN"
-export RUNDECK_API_URL="https://demo.runbook.pagerduty.cloud"
+export RUNDECK_API_URL="https://YOURDSERVER.runbook.pagerduty.cloud"
 
 # Optional PagerDuty configuration (defaults shown)
 export PAGERDUTY_SUBDOMAIN="pdt-justyn"
@@ -84,6 +84,17 @@ NODE_OPTIONS=--no-node-snapshot yarn start
 
 The application will start:
 - Frontend: http://localhost:3000
+
+Notes:
+| Service | Status |
+|---------|--------|
+| Service Sync | Working |
+| Create NodeJS app with PD Service | Working |
+| AWS Cloud Application Runs RBA Job (And returns log data) | Working |
+
+Edit local files in examples/template/content to suit your own JobIDs, task naming etc
+
+
 
 
 
