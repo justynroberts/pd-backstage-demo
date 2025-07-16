@@ -1,0 +1,154 @@
+# Backstage Scaffolder Template for Deploying AWS Resources via Rundeck
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: rundeck-job-template
+  title: Deploy AWS Resources
+  description: Use this template to deploy EC2 host resources with additional options for AMI, TTL, user tagging, and AWS sizing.
+  tags:
+    - rundeck
+    - job
+    - automation
+spec:
+  owner: user:guest
+  type: rundeck-orchestration
+
+  # Define parameters required to deploy the AWS resource
+  parameters:
+    - title: Deploy Multicloud Resources
+      required:
+        - environment
+        - region
+        - ami
+        - ttl
+        - userTag
+        - instanceType
+      properties:
+        # Target environment parameter
+        environment:
+          title: Environment
+          type: string
+          description: Target environment for the job
+          enum:
+            - dev
+            - staging
+            - prod
+
+        # AWS region selection
+        region:
+          title: Region
+          type: string
+          description: Target AWS region
+          enum:
+            - us-east-1
+            - us-west-2
+            - eu-west-1
+
+        # Sample AMI parameter with description
+        ami:
+          title: Sample AMI
+          type: string
+          description: >
+            The Amazon Machine Image (AMI) ID to deploy. For example, use 'ami-0abcdef1234567890' for an Ubuntu 20.04 LTS image.
+          default: ami-05b10e08d247fb927
+
+        # Time to live (TTL) parameter for resource auto-deletion
+        # TTL now defined as a string with specific allowed options
+        ttl:
+          title: Time to Live (TTL)
+          type: string
+          description: >
+            Duration in days before the resource is automatically deleted. Choose one of the following options: 7, 14, or 30 days.
+          enum:
+            - "7"
+            - "14"
+            - "30"
+          default: "7"
+            
+        # User tag to identify the resource owner
+        userTag:
+          title: User Tag
+          type: string
+          description: >
+            Custom tag to identify the owner of the resource.
+          default: guest
+
+        # AWS instance sizing selection
+        instanceType:
+          title: AWS Instance Type
+          type: string
+          description: >
+            AWS instance sizing for the EC2 host. Choose an instance type such as t2.micro, t2.small, t2.medium, t3.micro, t3.small, or t3.medium.
+          enum:
+            - t2.micro
+            - t2.small
+            - t2.medium
+            - t3.micro
+            - t3.small
+            - t3.medium
+          default: t2.micro
+
+        # Option to wait for job completion
+        waitForJob:
+          title: Wait for completion
+          type: boolean
+          description: Wait for job to complete before finishing
+          default: true
+
+  # Define the steps to execute the Rundeck job
+  steps:
+    - id: rundeck-execute
+      name: Execute Rundeck Job
+      action: rundeck:job:execute
+      input:
+        jobId: '7fd537c4-4077-4404-a0ad-65cf19034b02'
+        projectName: NA
+        parameters:
+          ENV: ${{ parameters.environment }}
+          REGION: ${{ parameters.region }}
+          AMI: ${{ parameters.ami }}
+          TTL: ${{ parameters.ttl }}
+          USER_TAG: ${{ parameters.userTag }}
+          INSTANCE_TYPE: ${{ parameters.instanceType }}
+        waitForJob: ${{ parameters.waitForJob }}
+
+    - id: log-results
+      name: Display Deployment Results
+      action: debug:log
+      input:
+        message: |
+          ===== Rundeck Job Execution Complete =====
+          Status: ${{ steps['rundeck-execute'].output.status }}
+          Execution ID: ${{ steps['rundeck-execute'].output.executionId }}
+          
+          Environment: ${{ parameters.environment }}
+          Region: ${{ parameters.region }}
+          Instance Type: ${{ parameters.instanceType }}
+          TTL: ${{ parameters.ttl }} days
+          
+          ===== Execution Logs =====
+          ${{ steps['rundeck-execute'].output.logs }}
+
+
+
+  # Output section to provide useful links and information post-deployment
+  output:
+
+    text:
+      - title: Execution Logs
+        content: ${{ steps['rundeck-execute'].output.logs }}
+      - title: Deployment Status
+        content: ${{ steps['rundeck-execute'].output.status }}
+      - title: Execution ID
+        content: ${{ steps['rundeck-execute'].output.executionId }}
+      - title: Deployment Parameters
+        content: |
+          Environment: ${{ parameters.environment }} \n
+          Region: ${{ parameters.region }}
+          AMI: ${{ parameters.ami }}
+          Instance Type: ${{ parameters.instanceType }}
+          TTL: ${{ parameters.ttl }} days
+          User Tag: ${{ parameters.userTag }}
+  
+
+          

@@ -1,0 +1,180 @@
+# Backstage Scaffolder Template for Container Registry Management via Rundeck
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: rundeck-container-registry-template
+  title: Container Registry Management
+  description: Use this template to manage container registries including image scanning, cleanup, replication, and access control.
+  tags:
+    - rundeck
+    - containers
+    - registry
+    - docker
+spec:
+  owner: user:guest
+  type: rundeck-orchestration
+
+  # Define parameters required for container registry management
+  parameters:
+    - title: Container Registry Management Configuration
+      required:
+        - environment
+        - registryProvider
+        - operation
+        - repository
+        - imageTag
+        - scanSeverity
+        - retentionPolicy
+      properties:
+        # Target environment parameter
+        environment:
+          title: Environment
+          type: string
+          description: Target environment for registry operation
+          enum:
+            - dev
+            - staging
+            - prod
+            - all-environments
+
+        # Registry provider
+        registryProvider:
+          title: Registry Provider
+          type: string
+          description: Container registry provider
+          enum:
+            - docker-hub
+            - amazon-ecr
+            - google-gcr
+            - azure-acr
+            - harbor
+            - nexus
+          default: amazon-ecr
+
+        # Operation type
+        operation:
+          title: Operation
+          type: string
+          description: Registry operation to perform
+          enum:
+            - scan-images
+            - cleanup-old-images
+            - replicate-images
+            - update-access-policy
+            - generate-report
+            - backup-registry
+          default: scan-images
+
+        # Repository name
+        repository:
+          title: Repository Name
+          type: string
+          description: Container repository name
+          default: my-application
+
+        # Image tag filter
+        imageTag:
+          title: Image Tag Filter
+          type: string
+          description: Image tag pattern to filter
+          enum:
+            - latest
+            - "*"
+            - "v*"
+            - "release-*"
+            - "feature-*"
+          default: "*"
+
+        # Scan severity
+        scanSeverity:
+          title: Vulnerability Scan Severity
+          type: string
+          description: Minimum severity level for vulnerability scanning
+          enum:
+            - critical
+            - high
+            - medium
+            - low
+            - info
+          default: medium
+
+        # Retention policy
+        retentionPolicy:
+          title: Image Retention Policy
+          type: string
+          description: Policy for retaining container images
+          enum:
+            - keep-last-10
+            - keep-last-30
+            - keep-30-days
+            - keep-90-days
+            - keep-all
+          default: keep-last-30
+
+        # Enable quarantine
+        enableQuarantine:
+          title: Enable Quarantine
+          type: boolean
+          description: Quarantine images with critical vulnerabilities
+          default: true
+
+        # Auto-cleanup
+        enableAutoCleanup:
+          title: Enable Auto Cleanup
+          type: boolean
+          description: Automatically cleanup old images based on retention policy
+          default: false
+
+        # Notification settings
+        notificationChannel:
+          title: Notification Channel
+          type: string
+          description: Channel for operation notifications
+          enum:
+            - email
+            - slack
+            - teams
+            - webhook
+            - none
+          default: slack
+
+        # Option to wait for job completion
+        waitForJob:
+          title: Wait for completion
+          type: boolean
+          description: Wait for job to complete before finishing
+          default: true
+
+  # Define the steps to execute the Rundeck job
+  steps:
+    - id: rundeck-execute
+      name: Execute Container Registry Management
+      action: rundeck:job:execute
+      input:
+        jobId: registry-mgmt-abcdefgh-1234-5678-9012-abcdefghijkl
+        projectName: CONTAINER_OPS
+        parameters:
+          ENV: ${{ parameters.environment }}
+          REGISTRY_PROVIDER: ${{ parameters.registryProvider }}
+          OPERATION: ${{ parameters.operation }}
+          REPOSITORY: ${{ parameters.repository }}
+          IMAGE_TAG: ${{ parameters.imageTag }}
+          SCAN_SEVERITY: ${{ parameters.scanSeverity }}
+          RETENTION_POLICY: ${{ parameters.retentionPolicy }}
+          ENABLE_QUARANTINE: ${{ parameters.enableQuarantine }}
+          ENABLE_AUTO_CLEANUP: ${{ parameters.enableAutoCleanup }}
+          NOTIFICATION_CHANNEL: ${{ parameters.notificationChannel }}
+        waitForJob: ${{ parameters.waitForJob }}
+
+  # Output section to provide useful links post-operation
+  output:
+    links:
+      - title: Rundeck Execution
+        url: ${{ steps['rundeck-execute'].output.executionId }}
+        icon: dashboard
+      - title: Container Registry
+        url: https://registry.company.com
+        icon: container
+      - title: Vulnerability Dashboard
+        url: https://vuln-scan.company.com/containers
+        icon: security

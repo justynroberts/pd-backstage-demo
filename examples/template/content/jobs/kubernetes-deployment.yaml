@@ -1,0 +1,155 @@
+# Backstage Scaffolder Template for Kubernetes Deployment via Rundeck
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: rundeck-k8s-deployment-template
+  title: Kubernetes Application Deployment
+  description: Use this template to deploy applications to Kubernetes clusters with configurable scaling, resource limits, and deployment strategies.
+  tags:
+    - rundeck
+    - kubernetes
+    - deployment
+    - containers
+spec:
+  owner: user:guest
+  type: rundeck-orchestration
+
+  # Define parameters required for Kubernetes deployment
+  parameters:
+    - title: Kubernetes Deployment Configuration
+      required:
+        - environment
+        - cluster
+        - namespace
+        - applicationName
+        - imageTag
+        - replicas
+        - deploymentStrategy
+      properties:
+        # Target environment parameter
+        environment:
+          title: Environment
+          type: string
+          description: Target environment for the deployment
+          enum:
+            - dev
+            - staging
+            - prod
+
+        # Kubernetes cluster selection
+        cluster:
+          title: Kubernetes Cluster
+          type: string
+          description: Target Kubernetes cluster
+          enum:
+            - dev-cluster-1
+            - staging-cluster-1
+            - prod-cluster-1
+            - prod-cluster-2
+
+        # Namespace
+        namespace:
+          title: Namespace
+          type: string
+          description: Kubernetes namespace for deployment
+          default: default
+
+        # Application name
+        applicationName:
+          title: Application Name
+          type: string
+          description: Name of the application to deploy
+          default: my-app
+
+        # Container image tag
+        imageTag:
+          title: Image Tag
+          type: string
+          description: Docker image tag to deploy
+          default: latest
+
+        # Number of replicas
+        replicas:
+          title: Replicas
+          type: string
+          description: Number of pod replicas
+          enum:
+            - "1"
+            - "2"
+            - "3"
+            - "5"
+            - "10"
+          default: "2"
+
+        # Deployment strategy
+        deploymentStrategy:
+          title: Deployment Strategy
+          type: string
+          description: Kubernetes deployment strategy
+          enum:
+            - RollingUpdate
+            - Recreate
+            - BlueGreen
+            - Canary
+          default: RollingUpdate
+
+        # CPU limit
+        cpuLimit:
+          title: CPU Limit
+          type: string
+          description: CPU limit per container
+          enum:
+            - 100m
+            - 250m
+            - 500m
+            - 1000m
+          default: 250m
+
+        # Memory limit
+        memoryLimit:
+          title: Memory Limit
+          type: string
+          description: Memory limit per container
+          enum:
+            - 128Mi
+            - 256Mi
+            - 512Mi
+            - 1Gi
+          default: 256Mi
+
+        # Option to wait for job completion
+        waitForJob:
+          title: Wait for completion
+          type: boolean
+          description: Wait for job to complete before finishing
+          default: true
+
+  # Define the steps to execute the Rundeck job
+  steps:
+    - id: rundeck-execute
+      name: Execute Kubernetes Deployment
+      action: rundeck:job:execute
+      input:
+        jobId: k8s-deploy-87654321-4321-4321-4321-fedcba987654
+        projectName: KUBERNETES_OPS
+        parameters:
+          ENV: ${{ parameters.environment }}
+          CLUSTER: ${{ parameters.cluster }}
+          NAMESPACE: ${{ parameters.namespace }}
+          APP_NAME: ${{ parameters.applicationName }}
+          IMAGE_TAG: ${{ parameters.imageTag }}
+          REPLICAS: ${{ parameters.replicas }}
+          DEPLOYMENT_STRATEGY: ${{ parameters.deploymentStrategy }}
+          CPU_LIMIT: ${{ parameters.cpuLimit }}
+          MEMORY_LIMIT: ${{ parameters.memoryLimit }}
+        waitForJob: ${{ parameters.waitForJob }}
+
+  # Output section to provide useful links post-deployment
+  output:
+    links:
+      - title: Rundeck Execution
+        url: ${{ steps['rundeck-execute'].output.executionId }}
+        icon: dashboard
+      - title: Kubernetes Dashboard
+        url: https://k8s-dashboard.company.com
+        icon: kubernetes

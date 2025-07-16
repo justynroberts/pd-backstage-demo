@@ -1,0 +1,197 @@
+# Backstage Scaffolder Template for Network Configuration via Rundeck
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: rundeck-network-config-template
+  title: Network Infrastructure Configuration
+  description: Use this template to configure network infrastructure including VPCs, subnets, security groups, and routing tables with automated compliance checks.
+  tags:
+    - rundeck
+    - networking
+    - infrastructure
+    - security
+spec:
+  owner: user:guest
+  type: rundeck-orchestration
+
+  # Define parameters required for network configuration
+  parameters:
+    - title: Network Configuration
+      required:
+        - environment
+        - networkProvider
+        - operation
+        - networkType
+        - cidrBlock
+        - securityLevel
+        - routingType
+      properties:
+        # Target environment parameter
+        environment:
+          title: Environment
+          type: string
+          description: Target environment for network configuration
+          enum:
+            - dev
+            - staging
+            - prod
+            - shared-services
+
+        # Network provider
+        networkProvider:
+          title: Network Provider
+          type: string
+          description: Cloud provider for network infrastructure
+          enum:
+            - aws-vpc
+            - azure-vnet
+            - google-vpc
+            - on-premises
+            - hybrid-cloud
+          default: aws-vpc
+
+        # Operation type
+        operation:
+          title: Operation
+          type: string
+          description: Network operation to perform
+          enum:
+            - create-network
+            - update-security-groups
+            - configure-routing
+            - setup-peering
+            - update-firewall-rules
+            - network-assessment
+          default: create-network
+
+        # Network type
+        networkType:
+          title: Network Type
+          type: string
+          description: Type of network configuration
+          enum:
+            - public-subnet
+            - private-subnet
+            - dmz-subnet
+            - management-subnet
+            - database-subnet
+            - multi-tier-network
+          default: multi-tier-network
+
+        # CIDR block
+        cidrBlock:
+          title: CIDR Block
+          type: string
+          description: IP address range for the network
+          enum:
+            - 10.0.0.0/16
+            - 10.1.0.0/16
+            - 10.2.0.0/16
+            - 172.16.0.0/16
+            - 192.168.0.0/16
+          default: 10.0.0.0/16
+
+        # Security level
+        securityLevel:
+          title: Security Level
+          type: string
+          description: Security configuration level
+          enum:
+            - high-security
+            - standard-security
+            - development-security
+            - dmz-security
+            - isolated-security
+          default: standard-security
+
+        # Routing type
+        routingType:
+          title: Routing Configuration
+          type: string
+          description: Network routing configuration
+          enum:
+            - internet-gateway
+            - nat-gateway
+            - vpn-gateway
+            - direct-connect
+            - private-routing
+          default: internet-gateway
+
+        # Enable monitoring
+        enableNetworkMonitoring:
+          title: Enable Network Monitoring
+          type: boolean
+          description: Enable network traffic monitoring and logging
+          default: true
+
+        # Compliance check
+        complianceValidation:
+          title: Compliance Validation
+          type: string
+          description: Compliance framework for network validation
+          enum:
+            - none
+            - cis-benchmarks
+            - nist-framework
+            - pci-compliance
+            - hipaa-compliance
+          default: cis-benchmarks
+
+        # Auto-scaling
+        enableAutoScaling:
+          title: Enable Auto-scaling
+          type: boolean
+          description: Enable network auto-scaling capabilities
+          default: false
+
+        # Backup configuration
+        enableConfigBackup:
+          title: Enable Configuration Backup
+          type: boolean
+          description: Backup network configuration changes
+          default: true
+
+        # Option to wait for job completion
+        waitForJob:
+          title: Wait for completion
+          type: boolean
+          description: Wait for job to complete before finishing
+          default: true
+
+  # Define the steps to execute the Rundeck job
+  steps:
+    - id: rundeck-execute
+      name: Execute Network Configuration
+      action: rundeck:job:execute
+      input:
+        jobId: network-config-ffffffff-eeee-dddd-cccc-bbbbbbbbbbbb
+        projectName: NETWORK_OPS
+        parameters:
+          ENV: ${{ parameters.environment }}
+          NETWORK_PROVIDER: ${{ parameters.networkProvider }}
+          OPERATION: ${{ parameters.operation }}
+          NETWORK_TYPE: ${{ parameters.networkType }}
+          CIDR_BLOCK: ${{ parameters.cidrBlock }}
+          SECURITY_LEVEL: ${{ parameters.securityLevel }}
+          ROUTING_TYPE: ${{ parameters.routingType }}
+          ENABLE_NETWORK_MONITORING: ${{ parameters.enableNetworkMonitoring }}
+          COMPLIANCE_VALIDATION: ${{ parameters.complianceValidation }}
+          ENABLE_AUTO_SCALING: ${{ parameters.enableAutoScaling }}
+          ENABLE_CONFIG_BACKUP: ${{ parameters.enableConfigBackup }}
+        waitForJob: ${{ parameters.waitForJob }}
+
+  # Output section to provide useful links post-configuration
+  output:
+    links:
+      - title: Rundeck Execution
+        url: ${{ steps['rundeck-execute'].output.executionId }}
+        icon: dashboard
+      - title: Network Topology
+        url: https://network.company.com/topology
+        icon: network
+      - title: Security Groups
+        url: https://network.company.com/security-groups
+        icon: security
+      - title: Network Monitoring
+        url: https://network-monitor.company.com
+        icon: monitoring

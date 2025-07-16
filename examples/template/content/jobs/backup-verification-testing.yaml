@@ -1,0 +1,189 @@
+# Backstage Scaffolder Template for Backup Verification via Rundeck
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: rundeck-backup-verification-template
+  title: Backup Verification and Testing
+  description: Use this template to verify backup integrity, perform restore tests, and validate backup compliance across different systems.
+  tags:
+    - rundeck
+    - backup
+    - verification
+    - disaster-recovery
+spec:
+  owner: user:guest
+  type: rundeck-orchestration
+
+  # Define parameters required for backup verification
+  parameters:
+    - title: Backup Verification Configuration
+      required:
+        - environment
+        - backupType
+        - verificationLevel
+        - backupLocation
+        - testEnvironment
+        - complianceFramework
+        - notificationLevel
+      properties:
+        # Target environment parameter
+        environment:
+          title: Environment
+          type: string
+          description: Target environment for backup verification
+          enum:
+            - dev
+            - staging
+            - prod
+            - all-environments
+
+        # Backup type
+        backupType:
+          title: Backup Type
+          type: string
+          description: Type of backup to verify
+          enum:
+            - database-backup
+            - filesystem-backup
+            - vm-snapshot
+            - container-backup
+            - configuration-backup
+            - full-system-backup
+          default: database-backup
+
+        # Verification level
+        verificationLevel:
+          title: Verification Level
+          type: string
+          description: Depth of backup verification testing
+          enum:
+            - checksum-only
+            - partial-restore
+            - full-restore-test
+            - application-validation
+            - performance-test
+          default: partial-restore
+
+        # Backup location
+        backupLocation:
+          title: Backup Location
+          type: string
+          description: Storage location of backups to verify
+          enum:
+            - s3-primary
+            - s3-secondary
+            - azure-blob
+            - google-cloud-storage
+            - on-premises-storage
+            - hybrid-storage
+          default: s3-primary
+
+        # Test environment
+        testEnvironment:
+          title: Test Environment
+          type: string
+          description: Environment for performing restore tests
+          enum:
+            - isolated-test-env
+            - dev-environment
+            - staging-clone
+            - dedicated-dr-env
+            - temporary-instance
+          default: isolated-test-env
+
+        # Compliance framework
+        complianceFramework:
+          title: Compliance Framework
+          type: string
+          description: Compliance standard for backup verification
+          enum:
+            - none
+            - sox-compliance
+            - hipaa-compliance
+            - gdpr-compliance
+            - pci-dss
+            - iso-27001
+          default: none
+
+        # Notification level
+        notificationLevel:
+          title: Notification Level
+          type: string
+          description: Level of notifications for verification results
+          enum:
+            - critical-only
+            - failures-only
+            - all-results
+            - summary-only
+          default: failures-only
+
+        # Age of backups to test
+        backupAge:
+          title: Backup Age Range
+          type: string
+          description: Age range of backups to include in verification
+          enum:
+            - last-24-hours
+            - last-week
+            - last-month
+            - last-quarter
+            - all-backups
+          default: last-week
+
+        # Cleanup after test
+        cleanupAfterTest:
+          title: Cleanup After Test
+          type: boolean
+          description: Clean up test resources after verification
+          default: true
+
+        # Generate report
+        generateReport:
+          title: Generate Verification Report
+          type: boolean
+          description: Generate detailed verification report
+          default: true
+
+        # Option to wait for job completion
+        waitForJob:
+          title: Wait for completion
+          type: boolean
+          description: Wait for job to complete before finishing
+          default: true
+
+  # Define the steps to execute the Rundeck job
+  steps:
+    - id: rundeck-execute
+      name: Execute Backup Verification
+      action: rundeck:job:execute
+      input:
+        jobId: backup-verify-44444444-3333-2222-1111-000000000000
+        projectName: BACKUP_OPS
+        parameters:
+          ENV: ${{ parameters.environment }}
+          BACKUP_TYPE: ${{ parameters.backupType }}
+          VERIFICATION_LEVEL: ${{ parameters.verificationLevel }}
+          BACKUP_LOCATION: ${{ parameters.backupLocation }}
+          TEST_ENVIRONMENT: ${{ parameters.testEnvironment }}
+          COMPLIANCE_FRAMEWORK: ${{ parameters.complianceFramework }}
+          NOTIFICATION_LEVEL: ${{ parameters.notificationLevel }}
+          BACKUP_AGE: ${{ parameters.backupAge }}
+          CLEANUP_AFTER_TEST: ${{ parameters.cleanupAfterTest }}
+          GENERATE_REPORT: ${{ parameters.generateReport }}
+        waitForJob: ${{ parameters.waitForJob }}
+
+  # Output section to provide useful links post-verification
+  output:
+    links:
+      - title: Rundeck Execution
+        url: ${{ steps['rundeck-execute'].output.executionId }}
+        icon: dashboard
+      - title: Backup Dashboard
+        url: https://backup.company.com/dashboard
+        icon: backup
+      - title: DR Testing Reports
+        url: https://dr-reports.company.com
+        icon: report
+      - title: Compliance Dashboard
+        url: https://compliance.company.com/backups
+        icon: compliance

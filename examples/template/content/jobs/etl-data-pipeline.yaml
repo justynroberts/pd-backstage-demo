@@ -1,0 +1,170 @@
+# Backstage Scaffolder Template for ETL Data Pipeline via Rundeck
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: rundeck-etl-pipeline-template
+  title: ETL Data Pipeline Execution
+  description: Use this template to execute ETL data pipelines with configurable data sources, transformations, and destination targets.
+  tags:
+    - rundeck
+    - etl
+    - data-pipeline
+    - analytics
+spec:
+  owner: user:guest
+  type: rundeck-orchestration
+
+
+  # Define parameters required for ETL pipeline execution
+  parameters:
+    - title: ETL Pipeline Configuration
+      required:
+        - environment
+        - pipelineName
+        - dataSource
+        - destination
+        - transformationType
+        - scheduleType
+        - dataFormat
+      properties:
+        # Target environment parameter
+        environment:
+          title: Environment
+          type: string
+          description: Target environment for the ETL pipeline
+          enum:
+            - dev
+            - staging
+            - prod
+
+        # Pipeline name
+        pipelineName:
+          title: Pipeline Name
+          type: string
+          description: Name of the ETL pipeline to execute
+          default: customer-data-pipeline
+
+        # Data source selection
+        dataSource:
+          title: Data Source
+          type: string
+          description: Source system for data extraction
+          enum:
+            - mysql-crm
+            - postgresql-orders
+            - mongodb-logs
+            - s3-raw-data
+            - kafka-stream
+            - rest-api
+          default: mysql-crm
+
+        # Destination selection
+        destination:
+          title: Destination
+          type: string
+          description: Target destination for processed data
+          enum:
+            - redshift-warehouse
+            - snowflake-warehouse
+            - s3-processed
+            - elasticsearch-index
+            - bigquery-dataset
+          default: redshift-warehouse
+
+        # Transformation type
+        transformationType:
+          title: Transformation Type
+          type: string
+          description: Type of data transformation to apply
+          enum:
+            - clean-and-normalize
+            - aggregate-daily
+            - aggregate-hourly
+            - join-customer-data
+            - custom-transformation
+          default: clean-and-normalize
+
+        # Schedule type
+        scheduleType:
+          title: Schedule Type
+          type: string
+          description: Pipeline execution schedule
+          enum:
+            - immediate
+            - daily
+            - hourly
+            - weekly
+            - custom-cron
+          default: immediate
+
+        # Data format
+        dataFormat:
+          title: Data Format
+          type: string
+          description: Format of the source data
+          enum:
+            - json
+            - csv
+            - parquet
+            - avro
+            - xml
+          default: json
+
+        # Batch size
+        batchSize:
+          title: Batch Size
+          type: string
+          description: Number of records to process per batch
+          enum:
+            - "1000"
+            - "5000"
+            - "10000"
+            - "50000"
+          default: "5000"
+
+        # Data validation
+        enableValidation:
+          title: Enable Data Validation
+          type: boolean
+          description: Enable data quality validation checks
+          default: true
+
+        # Option to wait for job completion
+        waitForJob:
+          title: Wait for completion
+          type: boolean
+          description: Wait for job to complete before finishing
+          default: true
+
+  # Define the steps to execute the Rundeck job
+  steps:
+    - id: rundeck-execute
+      name: Execute ETL Pipeline
+      action: rundeck:job:execute
+      input:
+        jobId: etl-pipeline-11111111-2222-3333-4444-555555555555
+        projectName: DATA_ENGINEERING
+        parameters:
+          ENV: ${{ parameters.environment }}
+          PIPELINE_NAME: ${{ parameters.pipelineName }}
+          DATA_SOURCE: ${{ parameters.dataSource }}
+          DESTINATION: ${{ parameters.destination }}
+          TRANSFORMATION_TYPE: ${{ parameters.transformationType }}
+          SCHEDULE_TYPE: ${{ parameters.scheduleType }}
+          DATA_FORMAT: ${{ parameters.dataFormat }}
+          BATCH_SIZE: ${{ parameters.batchSize }}
+          ENABLE_VALIDATION: ${{ parameters.enableValidation }}
+        waitForJob: ${{ parameters.waitForJob }}
+
+  # Output section to provide useful links post-execution
+  output:
+    links:
+      - title: Rundeck Execution
+        url: ${{ steps['rundeck-execute'].output.executionId }}
+        icon: dashboard
+      - title: Data Pipeline Monitoring
+        url: https://datadog.company.com/pipelines
+        icon: monitoring
+      - title: Data Quality Dashboard
+        url: https://dq-dashboard.company.com
+        icon: quality

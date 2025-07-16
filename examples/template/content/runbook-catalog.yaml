@@ -1,0 +1,18 @@
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: runbook-jobs
+  description: All runbook automation jobs
+spec:
+  targets:
+    - ./jobs/aws-provisioning.yaml
+    - ./jobs/database-backup-restore.yaml
+    - ./jobs/kubernetes-deployment.yaml
+    - ./jobs/etl-data-pipeline.yaml
+    - ./jobs/security-vulnerability-scan.yaml
+    - ./jobs/load-balancer-config.yaml
+    - ./jobs/log-aggregation-setup.yaml
+    - ./jobs/container-registry-management.yaml
+    - ./jobs/monitoring-setup.yaml
+    - ./jobs/backup-verification-testing.yaml
+    - ./jobs/network-infrastructure-config.yaml

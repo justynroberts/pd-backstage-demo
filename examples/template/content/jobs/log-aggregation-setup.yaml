@@ -1,0 +1,186 @@
+# Backstage Scaffolder Template for Log Aggregation Setup via Rundeck
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: rundeck-log-aggregation-template
+  title: Log Aggregation and Processing Setup
+  description: Use this template to configure log aggregation pipelines with centralized collection, processing, and alerting capabilities.
+  tags:
+    - rundeck
+    - logging
+    - monitoring
+    - observability
+spec:
+  owner: user:guest
+  type: rundeck-orchestration
+
+  # Define parameters required for log aggregation setup
+  parameters:
+    - title: Log Aggregation Configuration
+      required:
+        - environment
+        - logSource
+        - aggregationTool
+        - retentionPeriod
+        - logLevel
+        - indexPattern
+        - alertThreshold
+      properties:
+        # Target environment parameter
+        environment:
+          title: Environment
+          type: string
+          description: Target environment for log aggregation
+          enum:
+            - dev
+            - staging
+            - prod
+            - all-environments
+
+        # Log source selection
+        logSource:
+          title: Log Source
+          type: string
+          description: Source system for log collection
+          enum:
+            - application-logs
+            - system-logs
+            - container-logs
+            - database-logs
+            - web-server-logs
+            - network-logs
+          default: application-logs
+
+        # Aggregation tool
+        aggregationTool:
+          title: Aggregation Tool
+          type: string
+          description: Log aggregation and processing tool
+          enum:
+            - elk-stack
+            - splunk
+            - fluentd
+            - logstash
+            - datadog
+            - new-relic
+          default: elk-stack
+
+        # Retention period
+        retentionPeriod:
+          title: Log Retention Period (days)
+          type: string
+          description: How long to retain log data
+          enum:
+            - "7"
+            - "30"
+            - "90"
+            - "365"
+            - "2555"
+          default: "90"
+
+        # Log level filter
+        logLevel:
+          title: Minimum Log Level
+          type: string
+          description: Minimum log level to collect
+          enum:
+            - DEBUG
+            - INFO
+            - WARN
+            - ERROR
+            - FATAL
+          default: INFO
+
+        # Index pattern
+        indexPattern:
+          title: Index Pattern
+          type: string
+          description: Pattern for log index organization
+          enum:
+            - daily
+            - weekly
+            - monthly
+            - by-service
+            - by-environment
+          default: daily
+
+        # Alert threshold
+        alertThreshold:
+          title: Error Alert Threshold
+          type: string
+          description: Number of errors to trigger alert
+          enum:
+            - "10"
+            - "50"
+            - "100"
+            - "500"
+            - "1000"
+          default: "100"
+
+        # Enable parsing
+        enableLogParsing:
+          title: Enable Log Parsing
+          type: boolean
+          description: Enable structured log parsing and field extraction
+          default: true
+
+        # Compression
+        enableCompression:
+          title: Enable Compression
+          type: boolean
+          description: Enable log compression for storage efficiency
+          default: true
+
+        # Sampling rate
+        samplingRate:
+          title: Sampling Rate (%)
+          type: string
+          description: Percentage of logs to sample for high-volume sources
+          enum:
+            - "100"
+            - "50"
+            - "25"
+            - "10"
+            - "1"
+          default: "100"
+
+        # Option to wait for job completion
+        waitForJob:
+          title: Wait for completion
+          type: boolean
+          description: Wait for job to complete before finishing
+          default: true
+
+  # Define the steps to execute the Rundeck job
+  steps:
+    - id: rundeck-execute
+      name: Execute Log Aggregation Setup
+      action: rundeck:job:execute
+      input:
+        jobId: log-agg-99999999-8888-7777-6666-555555555555
+        projectName: OBSERVABILITY_OPS
+        parameters:
+          ENV: ${{ parameters.environment }}
+          LOG_SOURCE: ${{ parameters.logSource }}
+          AGGREGATION_TOOL: ${{ parameters.aggregationTool }}
+          RETENTION_PERIOD: ${{ parameters.retentionPeriod }}
+          LOG_LEVEL: ${{ parameters.logLevel }}
+          INDEX_PATTERN: ${{ parameters.indexPattern }}
+          ALERT_THRESHOLD: ${{ parameters.alertThreshold }}
+          ENABLE_LOG_PARSING: ${{ parameters.enableLogParsing }}
+          ENABLE_COMPRESSION: ${{ parameters.enableCompression }}
+          SAMPLING_RATE: ${{ parameters.samplingRate }}
+        waitForJob: ${{ parameters.waitForJob }}
+
+  # Output section to provide useful links post-setup
+  output:
+    links:
+      - title: Rundeck Execution
+        url: ${{ steps['rundeck-execute'].output.executionId }}
+        icon: dashboard
+      - title: Log Dashboard
+        url: https://logs.company.com/dashboard
+        icon: logs
+      - title: Kibana Interface
+        url: https://kibana.company.com
+        icon: search

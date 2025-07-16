@@ -1,0 +1,188 @@
+# Backstage Scaffolder Template for Monitoring Setup via Rundeck
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: rundeck-monitoring-setup-template
+  title: Infrastructure and Application Monitoring Setup
+  description: Use this template to configure comprehensive monitoring solutions including metrics collection, alerting, and dashboard creation.
+  tags:
+    - rundeck
+    - monitoring
+    - metrics
+    - alerting
+spec:
+  owner: user:guest
+  type: rundeck-orchestration
+
+  # Define parameters required for monitoring setup
+  parameters:
+    - title: Monitoring Configuration
+      required:
+        - environment
+        - monitoringStack
+        - targetSystem
+        - metricsRetention
+        - alertingChannel
+        - dashboardType
+        - alertSeverity
+      properties:
+        # Target environment parameter
+        environment:
+          title: Environment
+          type: string
+          description: Target environment for monitoring setup
+          enum:
+            - dev
+            - staging
+            - prod
+            - all-environments
+
+        # Monitoring stack
+        monitoringStack:
+          title: Monitoring Stack
+          type: string
+          description: Monitoring solution to deploy
+          enum:
+            - prometheus-grafana
+            - datadog
+            - new-relic
+            - splunk
+            - elk-stack
+            - nagios
+          default: prometheus-grafana
+
+        # Target system
+        targetSystem:
+          title: Target System
+          type: string
+          description: System or service to monitor
+          enum:
+            - kubernetes-cluster
+            - web-applications
+            - databases
+            - message-queues
+            - cache-servers
+            - load-balancers
+          default: web-applications
+
+        # Metrics retention
+        metricsRetention:
+          title: Metrics Retention Period
+          type: string
+          description: How long to retain monitoring data
+          enum:
+            - "7d"
+            - "30d"
+            - "90d"
+            - "1y"
+            - "2y"
+          default: "90d"
+
+        # Alerting channel
+        alertingChannel:
+          title: Alerting Channel
+          type: string
+          description: Primary channel for alerts
+          enum:
+            - email
+            - slack
+            - pagerduty
+            - teams
+            - webhook
+            - sms
+          default: slack
+
+        # Dashboard type
+        dashboardType:
+          title: Dashboard Type
+          type: string
+          description: Type of monitoring dashboard to create
+          enum:
+            - infrastructure-overview
+            - application-performance
+            - business-metrics
+            - security-metrics
+            - custom-dashboard
+          default: infrastructure-overview
+
+        # Alert severity
+        alertSeverity:
+          title: Minimum Alert Severity
+          type: string
+          description: Minimum severity level for alerting
+          enum:
+            - critical
+            - warning
+            - info
+            - debug
+          default: warning
+
+        # Sampling rate
+        metricsSamplingRate:
+          title: Metrics Sampling Rate (seconds)
+          type: string
+          description: Frequency of metrics collection
+          enum:
+            - "10"
+            - "30"
+            - "60"
+            - "300"
+          default: "60"
+
+        # Enable SLI/SLO
+        enableSLO:
+          title: Enable SLI/SLO Monitoring
+          type: boolean
+          description: Enable Service Level Indicator and Objective monitoring
+          default: false
+
+        # Auto-scaling integration
+        enableAutoScaling:
+          title: Enable Auto-scaling Integration
+          type: boolean
+          description: Integrate with auto-scaling based on metrics
+          default: false
+
+        # Option to wait for job completion
+        waitForJob:
+          title: Wait for completion
+          type: boolean
+          description: Wait for job to complete before finishing
+          default: true
+
+  # Define the steps to execute the Rundeck job
+  steps:
+    - id: rundeck-execute
+      name: Execute Monitoring Setup
+      action: rundeck:job:execute
+      input:
+        jobId: monitoring-setup-77777777-6666-5555-4444-333333333333
+        projectName: MONITORING_OPS
+        parameters:
+          ENV: ${{ parameters.environment }}
+          MONITORING_STACK: ${{ parameters.monitoringStack }}
+          TARGET_SYSTEM: ${{ parameters.targetSystem }}
+          METRICS_RETENTION: ${{ parameters.metricsRetention }}
+          ALERTING_CHANNEL: ${{ parameters.alertingChannel }}
+          DASHBOARD_TYPE: ${{ parameters.dashboardType }}
+          ALERT_SEVERITY: ${{ parameters.alertSeverity }}
+          METRICS_SAMPLING_RATE: ${{ parameters.metricsSamplingRate }}
+          ENABLE_SLO: ${{ parameters.enableSLO }}
+          ENABLE_AUTO_SCALING: ${{ parameters.enableAutoScaling }}
+        waitForJob: ${{ parameters.waitForJob }}
+
+  # Output section to provide useful links post-setup
+  output:
+    links:
+      - title: Rundeck Execution
+        url: ${{ steps['rundeck-execute'].output.executionId }}
+        icon: dashboard
+      - title: Grafana Dashboard
+        url: https://grafana.company.com
+        icon: grafana
+      - title: Prometheus Metrics
+        url: https://prometheus.company.com
+        icon: prometheus
+      - title: Alert Manager
+        url: https://alertmanager.company.com
+        icon: alert

@@ -1,0 +1,182 @@
+# Backstage Scaffolder Template for Load Balancer Configuration via Rundeck
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: rundeck-load-balancer-template
+  title: Load Balancer Configuration
+  description: Use this template to configure and manage load balancers with SSL termination, health checks, and traffic routing rules.
+  tags:
+    - rundeck
+    - load-balancer
+    - networking
+    - traffic-management
+spec:
+  owner: user:guest
+  type: rundeck-orchestration
+
+  # Define parameters required for load balancer configuration
+  parameters:
+    - title: Load Balancer Configuration
+      required:
+        - environment
+        - loadBalancerType
+        - operation
+        - targetGroup
+        - healthCheckPath
+        - sslCertificate
+        - routingPolicy
+      properties:
+        # Target environment parameter
+        environment:
+          title: Environment
+          type: string
+          description: Target environment for load balancer operation
+          enum:
+            - dev
+            - staging
+            - prod
+
+        # Load balancer type
+        loadBalancerType:
+          title: Load Balancer Type
+          type: string
+          description: Type of load balancer to configure
+          enum:
+            - application-lb
+            - network-lb
+            - classic-lb
+            - api-gateway
+            - cloudflare
+          default: application-lb
+
+        # Operation type
+        operation:
+          title: Operation
+          type: string
+          description: Load balancer operation to perform
+          enum:
+            - create
+            - update
+            - delete
+            - add-targets
+            - remove-targets
+            - update-rules
+          default: create
+
+        # Target group
+        targetGroup:
+          title: Target Group
+          type: string
+          description: Backend target group for load balancer
+          enum:
+            - web-servers
+            - api-servers
+            - database-cluster
+            - microservices
+            - cache-layer
+          default: web-servers
+
+        # Health check path
+        healthCheckPath:
+          title: Health Check Path
+          type: string
+          description: HTTP path for health check endpoint
+          default: /health
+
+        # SSL certificate
+        sslCertificate:
+          title: SSL Certificate
+          type: string
+          description: SSL certificate configuration
+          enum:
+            - auto-generated
+            - lets-encrypt
+            - custom-cert
+            - wildcard-cert
+            - none
+          default: auto-generated
+
+        # Routing policy
+        routingPolicy:
+          title: Routing Policy
+          type: string
+          description: Traffic routing algorithm
+          enum:
+            - round-robin
+            - least-connections
+            - weighted-round-robin
+            - ip-hash
+            - geographic
+          default: round-robin
+
+        # Health check interval
+        healthCheckInterval:
+          title: Health Check Interval (seconds)
+          type: string
+          description: Interval between health checks
+          enum:
+            - "10"
+            - "30"
+            - "60"
+            - "300"
+          default: "30"
+
+        # Enable stickiness
+        enableStickiness:
+          title: Enable Session Stickiness
+          type: boolean
+          description: Enable session affinity/stickiness
+          default: false
+
+        # Connection timeout
+        connectionTimeout:
+          title: Connection Timeout (seconds)
+          type: string
+          description: Connection timeout for backend targets
+          enum:
+            - "5"
+            - "10"
+            - "30"
+            - "60"
+          default: "10"
+
+        # Option to wait for job completion
+        waitForJob:
+          title: Wait for completion
+          type: boolean
+          description: Wait for job to complete before finishing
+          default: true
+
+  # Define the steps to execute the Rundeck job
+  steps:
+    - id: rundeck-execute
+      name: Execute Load Balancer Configuration
+      action: rundeck:job:execute
+      input:
+        jobId: lb-config-12345678-abcd-efgh-ijkl-mnopqrstuvwx
+        projectName: NETWORK_OPS
+        parameters:
+          ENV: ${{ parameters.environment }}
+          LB_TYPE: ${{ parameters.loadBalancerType }}
+          OPERATION: ${{ parameters.operation }}
+          TARGET_GROUP: ${{ parameters.targetGroup }}
+          HEALTH_CHECK_PATH: ${{ parameters.healthCheckPath }}
+          SSL_CERTIFICATE: ${{ parameters.sslCertificate }}
+          ROUTING_POLICY: ${{ parameters.routingPolicy }}
+          HEALTH_CHECK_INTERVAL: ${{ parameters.healthCheckInterval }}
+          ENABLE_STICKINESS: ${{ parameters.enableStickiness }}
+          CONNECTION_TIMEOUT: ${{ parameters.connectionTimeout }}
+        waitForJob: ${{ parameters.waitForJob }}
+
+  # Output section to provide useful links post-configuration
+  output:
+    links:
+      - title: Rundeck Execution
+        url: ${{ steps['rundeck-execute'].output.executionId }}
+        icon: dashboard
+      - title: Load Balancer Dashboard
+        url: https://lb-dashboard.company.com
+        icon: loadbalancer
+      - title: Network Monitoring
+        url: https://network-monitor.company.com
+        icon: monitoring

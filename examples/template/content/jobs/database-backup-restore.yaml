@@ -1,0 +1,123 @@
+# Backstage Scaffolder Template for Database Backup and Restore via Rundeck
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: rundeck-database-backup-template
+  title: Database Backup and Restore
+  description: Use this template to perform database backup and restore operations with configurable retention policies and notification settings.
+  tags:
+    - rundeck
+    - database
+    - backup
+    - restore
+spec:
+  owner: user:guest
+  type: rundeck-orchestration
+  # Define parameters required for database operations
+  parameters:
+    - title: Database Backup and Restore Configuration
+      required:
+        - environment
+        - databaseType
+        - operation
+        - retentionDays
+        - backupLocation
+        - notificationEmail
+      properties:
+        # Target environment parameter
+        environment:
+          title: Environment
+          type: string
+          description: Target environment for the database operation
+          enum:
+            - dev
+            - staging
+            - prod
+
+        # Database type selection
+        databaseType:
+          title: Database Type
+          type: string
+          description: Type of database to backup or restore
+          enum:
+            - postgresql
+            - mysql
+            - mongodb
+            - redis
+            - elasticsearch
+
+        # Operation type
+        operation:
+          title: Operation
+          type: string
+          description: Type of database operation to perform
+          enum:
+            - backup
+            - restore
+            - backup-and-verify
+          default: backup
+
+        # Retention policy
+        retentionDays:
+          title: Backup Retention (Days)
+          type: string
+          description: Number of days to retain backup files
+          enum:
+            - "7"
+            - "30"
+            - "90"
+            - "365"
+          default: "30"
+
+        # Backup storage location
+        backupLocation:
+          title: Backup Location
+          type: string
+          description: Storage location for backup files
+          enum:
+            - s3-primary
+            - s3-secondary
+            - local-storage
+            - azure-blob
+          default: s3-primary
+
+        # Notification email
+        notificationEmail:
+          title: Notification Email
+          type: string
+          description: Email address for operation notifications
+          default: admin@company.com
+
+        # Option to wait for job completion
+        waitForJob:
+          title: Wait for completion
+          type: boolean
+          description: Wait for job to complete before finishing
+          default: true
+
+  # Define the steps to execute the Rundeck job
+  steps:
+    - id: rundeck-execute
+      name: Execute Database Operation
+      action: rundeck:job:execute
+      input:
+        jobId: db-backup-12345678-1234-1234-1234-123456789abc
+        projectName: DATABASE_OPS
+        parameters:
+          ENV: ${{ parameters.environment }}
+          DB_TYPE: ${{ parameters.databaseType }}
+          OPERATION: ${{ parameters.operation }}
+          RETENTION_DAYS: ${{ parameters.retentionDays }}
+          BACKUP_LOCATION: ${{ parameters.backupLocation }}
+          NOTIFICATION_EMAIL: ${{ parameters.notificationEmail }}
+        waitForJob: ${{ parameters.waitForJob }}
+
+  # Output section to provide useful links post-operation
+  output:
+    links:
+      - title: Rundeck Execution
+        url: ${{ steps['rundeck-execute'].output.executionId }}
+        icon: dashboard
+      - title: Database Monitoring
+        url: https://monitoring.company.com/databases
+        icon: monitoring
