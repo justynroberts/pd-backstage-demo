@@ -61,10 +61,10 @@ export PAGERDUTY_CLIENT_SECRET="CLIENT_SECRET_FOR_REGISTERED_APP"
 
 # Required for Rundeck integration
 export RUNDECK_API_TOKEN="YOUR_RUNDECK_API_TOKEN"
-export RUNDECK_API_URL="https://YOURDSERVER.runbook.pagerduty.cloud"
+export RUNDECK_API_URL="https://YOURSERVER.runbook.pagerduty.cloud"
 
 # Optional PagerDuty configuration (defaults shown)
-export PAGERDUTY_SUBDOMAIN="pdt-justyn"
+export PAGERDUTY_SUBDOMAIN="YOUR_DOMAIN" 
 export PAGERDUTY_REGION="US"
 
 # Required for Scaffolder plugin (if demoing project creation)
