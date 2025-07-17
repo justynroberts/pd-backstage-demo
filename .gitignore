@@ -51,3 +51,8 @@ site
 
 # E2E test reports
 e2e-test-report/
+
+# SQLite database files - should not be distributed
+*.sqlite
+*.sqlite3
+*.db

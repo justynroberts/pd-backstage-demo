@@ -50,6 +50,5 @@
       "prettier --write"
     ]
   },
-  "packageManager": "yarn@4.4.1",
-  "dependencies": {}
+  "packageManager": "yarn@4.4.1"
 }
