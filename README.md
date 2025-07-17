@@ -41,18 +41,9 @@ This repository contains a complete Backstage instance with integrated PagerDuty
    cd pd-backstage-demo
    ```
 
-2. **Install dependencies**
+2. **Install dependencies and build everything**
    ```sh
    yarn install
-   ```
-
-3. **Generate TypeScript declarations**
-   ```sh
-   yarn tsc
-   ```
-
-4. **Build all packages**
-   ```sh
    yarn build:all
    ```
 
@@ -90,7 +81,7 @@ export GITHUB_TOKEN="YOUR_GITHUB_PERSONAL_ACCESS_TOKEN"
 
 ## Running the Application
 
-5. **Start the application**
+3. **Start the application**
    ```sh
    yarn start
    ```
