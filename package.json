@@ -24,7 +24,8 @@
   },
   "workspaces": {
     "packages": [
-      "packages/*"
+      "packages/*",
+      "plugins/*"
     ]
   },
   "devDependencies": {
@@ -50,7 +51,5 @@
     ]
   },
   "packageManager": "yarn@4.4.1",
-  "dependencies": {
-    "@internal/plugin-scaffolder-backend-module-rundeck": "git+https://github.com/justynroberts/backstage-rundeck-plugin.git"
-  }
+  "dependencies": {}
 }
