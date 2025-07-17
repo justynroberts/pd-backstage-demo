@@ -44,6 +44,7 @@ This repository contains a complete Backstage instance with integrated PagerDuty
 2. **Install dependencies and build everything**
    ```sh
    yarn install
+   yarn tsc
    yarn build:all
    ```
 
