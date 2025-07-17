@@ -1,5 +1,12 @@
-# backstage-demos
-This repository contains a Backstage instance configured with the PagerDuty plugin for Backstage that can be used for demos.
+# Backstage Demo with PagerDuty and Rundeck Integration
+
+This repository contains a complete Backstage instance with integrated PagerDuty and Rundeck plugins. It's designed as an all-in-one distributable demo that can be set up and running with minimal commands.
+
+## Features
+
+- **PagerDuty Integration**: Service synchronization, incident management, and service creation
+- **Rundeck Integration**: Job execution through scaffolder templates with optional wait functionality
+- **All-in-One Setup**: No external plugin dependencies - everything is included
 
 ## Prerequisites
 
@@ -26,17 +33,27 @@ This repository contains a Backstage instance configured with the PagerDuty plug
    brew install git
    ```
 
-## Getting Started
+## Quick Start
 
 1. **Clone the repository**
    ```sh
-   git clone <YOUR_REPO_URL>
-   cd backstage-demo
+   git clone https://github.com/justynroberts/pd-backstage-demo.git
+   cd pd-backstage-demo
    ```
 
 2. **Install dependencies**
    ```sh
    yarn install
+   ```
+
+3. **Generate TypeScript declarations**
+   ```sh
+   yarn tsc
+   ```
+
+4. **Build all packages**
+   ```sh
+   yarn build:all
    ```
 
 ## Register App in PagerDuty
@@ -73,17 +90,25 @@ export GITHUB_TOKEN="YOUR_GITHUB_PERSONAL_ACCESS_TOKEN"
 
 ## Running the Application
 
-```sh
-yarn start
-```
+5. **Start the application**
+   ```sh
+   yarn start
+   ```
 
-**For Node.js 20+:** Use the following command due to backend compatibility:
-```sh
-NODE_OPTIONS=--no-node-snapshot yarn start
-```
+   **For Node.js 20+:** Use the following command due to backend compatibility:
+   ```sh
+   NODE_OPTIONS=--no-node-snapshot yarn start
+   ```
 
-The application will start:
-- Frontend: http://localhost:3000
+The application will be available at:
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:7007
+
+## Included Scaffolder Actions
+
+The Rundeck plugin provides the following scaffolder action:
+
+- **`rundeck:job:execute`**: Execute Rundeck jobs with optional parameters and wait functionality
 
 Notes:
 | Service | Status |
